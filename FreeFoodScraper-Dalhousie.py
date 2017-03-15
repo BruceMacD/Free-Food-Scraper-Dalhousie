@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 import requests
 import urllib2
 import tweepy
@@ -11,6 +11,15 @@ consumer_key = 'XXX'
 consumer_secret = 'XXX'
 access_token = 'XXX'
 access_token_secret = 'XXX'
+
+MAX_CHARS = 140
+
+# common words that indicate free food
+filters = ['Breakfast', 'Lunch', 'Meal', 'Coffee', 'Snacks', 'Refreshments', 'Food', 'Dinner', 'Pizza']
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
 
 
 def scan_events():
@@ -26,25 +35,26 @@ def scan_events():
             if '/events/2' in link['href']:
                 html = urllib2.urlopen(link['href']).read()
                 for keyword in filters:
-                    if keyword in html.lower() and 'free' in html.lower():
+                    if keyword.lower() in html.lower() and 'free' in html.lower():
                         write_tweet(keyword, link)
     print("Scan completed at %s" % strftime("%Y-%m-%d %H:%M:%S", localtime()))
 
 
 def write_tweet(keyword, link):
-    # TODO: find the date of the event for formatting
-    tweet = "%s: %s" % (keyword, link['href'])
+    event_date = get_event_date_range(link['href'])
+    tweet = "%s - %s: %s" % (keyword, event_date, link['href'])
     print(tweet)
     api.update_status(status=tweet)
 
 
-# common words that indicate free food
-filters = ['breakfast', 'lunch', 'meal', 'coffee', 'snacks', 'refreshments', 'food', 'dinner', 'pizza']
+def get_event_date_range(event_url):
+    webpage = requests.get(event_url)
+    event_soup = BeautifulSoup(webpage.text, 'html.parser')
+    start_date = event_soup.find("time", itemprop="startDate")
+    return start_date.get_text() if start_date else "No Date"
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
 
+print("# Dalhousie Free Food Scraper Started #")
 schedule.every().sunday.at('12:00').do(scan_events)
 
 while True:
