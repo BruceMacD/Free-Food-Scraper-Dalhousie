@@ -10,7 +10,7 @@ import time
 consumer_key = 'XXX'
 consumer_secret = 'XXX'
 access_token = 'XXX'
-access_token_secret = 'XXXroot'
+access_token_secret = 'XXX'
 
 MAX_CHARS = 140
 
