@@ -10,7 +10,7 @@ import time
 consumer_key = 'XXX'
 consumer_secret = 'XXX'
 access_token = 'XXX'
-access_token_secret = 'XXX'
+access_token_secret = 'XXXroot'
 
 MAX_CHARS = 140
 
@@ -41,16 +41,16 @@ def scan_events():
 
 
 def write_tweet(keyword, link):
-    event_date = get_event_date_range(link['href'])
+    event_date = get_event_date(link['href'])
     tweet = "%s - %s: %s" % (keyword, event_date, link['href'])
     print(tweet)
     api.update_status(status=tweet)
 
 
-def get_event_date_range(event_url):
+def get_event_date(event_url):
     webpage = requests.get(event_url)
     event_soup = BeautifulSoup(webpage.text, 'html.parser')
-    start_date = event_soup.find("time", itemprop="startDate")
+    start_date = event_soup.find('time', itemprop="startDate")
     return start_date.get_text() if start_date else "No Date"
 
 
