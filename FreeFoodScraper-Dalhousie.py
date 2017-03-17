@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
+from time import strftime, localtime
 import requests
 import urllib2
 import tweepy
-from time import strftime, localtime
 import schedule
 import time
 
@@ -50,7 +50,7 @@ def write_tweet(keyword, link):
 def get_event_date(event_url):
     webpage = requests.get(event_url)
     event_soup = BeautifulSoup(webpage.text, 'html.parser')
-    start_date = event_soup.find('time', itemprop="startDate")
+    start_date = event_soup.find('time', itemprop='startDate')
     return start_date.get_text() if start_date else "No Date"
 
 
